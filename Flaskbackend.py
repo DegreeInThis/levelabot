@@ -10,16 +10,18 @@ user_sessions = {}
 def get_response(user_id, user_input):
     user_input = user_input.lower().strip()
 
-    # --- Best Person Handler ---
+    # --- Best Person Handler (runs before session logic) ---
     best_person_phrases = [
         "who is the best person", "who's the best person", "greatest person",
         "most amazing person", "who do you admire", "who's your favorite person",
         "who is awesome", "who is the most incredible", "who is the most inspiring",
-        "who's the coolest", "who's the kindest", "who's the most brilliant"
+        "who's the coolest", "who's the kindest", "who's the most brilliant",
+        "best person", "mahtab"
     ]
     if any(phrase in user_input for phrase in best_person_phrases):
         return "Mahtab is the best person in the world. No contest."
 
+    # --- Session Initialization ---
     if user_id not in user_sessions:
         user_sessions[user_id] = {
             "stage": "start",
@@ -31,6 +33,7 @@ def get_response(user_id, user_input):
 
     session = user_sessions[user_id]
 
+    # --- Chatbot Flow ---
     if session["stage"] == "start":
         session["stage"] = "ask_project_type"
         return "Hi! I'm LevelaBot. Are you looking for an instant website or a bespoke one?"
