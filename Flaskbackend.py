@@ -1,13 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect
-from dotenv import load_dotenv
 import os
-import stripe
 
-# --- Load environment variables ---
-load_dotenv()
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-
-app = Flask(__name__)
+app = Flask(__name__, template_folder='Templates', static_folder='Static')
 
 # --- Session Tracking ---
 user_sessions = {}
@@ -27,12 +21,10 @@ def get_response(user_id, user_input):
 
     session = user_sessions[user_id]
 
-    # --- Greeting ---
     if session["stage"] == "start":
         session["stage"] = "ask_project_type"
         return "Hi! I'm LevelaBot. Are you looking for an instant website or a bespoke one?"
 
-    # --- Project Type ---
     if session["stage"] == "ask_project_type":
         if "instant" in user_input or "template" in user_input:
             session["project"] = "instant"
@@ -45,13 +37,11 @@ def get_response(user_id, user_input):
         else:
             return "Just checking — are you after an instant website or a bespoke one?"
 
-    # --- Name ---
     if session["stage"] == "collect_name":
         session["name"] = user_input.title()
         session["stage"] = "collect_email"
         return f"Thanks, {session['name']}! What’s the best email to reach you on?"
 
-    # --- Email ---
     if session["stage"] == "collect_email":
         if "@" in user_input and "." in user_input:
             session["email"] = user_input
@@ -60,7 +50,6 @@ def get_response(user_id, user_input):
         else:
             return "Hmm, that doesn’t look like a valid email. Could you double-check it?"
 
-    # --- Features ---
     if session["stage"] == "collect_features":
         session["features"] = user_input
         session["stage"] = "quote_summary"
@@ -69,7 +58,6 @@ def get_response(user_id, user_input):
         else:
             return f"Here’s your bespoke quote summary:\n• Type: Bespoke Website\n• Estimated Price: £499–£999\n• Setup: 1–3 days\n• Features: {session['features']}\n\nWould you like a formal quote emailed to you or speak to someone?"
 
-    # --- Quote Follow-up ---
     if session["stage"] == "quote_summary":
         if "preview" in user_input:
             return "You can browse templates at [levelasolutions.co.uk/GetYourWebsiteNow](https://www.levelasolutions.co.uk/GetYourWebsiteNow). Let me know which one you like!"
@@ -83,7 +71,6 @@ def get_response(user_id, user_input):
         else:
             return "Would you like to preview templates, proceed to payment, or request a formal quote?"
 
-    # --- Fallbacks ---
     if "price" in user_input or "cost" in user_input:
         return "Instant websites are £249. Bespoke sites range from £499 to £999 depending on features."
 
@@ -113,25 +100,31 @@ def chatbot_response():
     reply = get_response(user_id, user_input)
     return jsonify({"reply": reply})
 
-@app.route("/create-checkout-session", methods=["GET"])
-def create_checkout_session():
-    session = stripe.checkout.Session.create(
-        payment_method_types=["card"],
-        line_items=[{
-            "price_data": {
-                "currency": "gbp",
-                "product_data": {
-                    "name": "Instant Website",
+# --- Optional Stripe Checkout ---
+stripe_key = os.getenv("STRIPE_SECRET_KEY")
+if stripe_key:
+    import stripe
+    stripe.api_key = stripe_key
+
+    @app.route("/create-checkout-session", methods=["GET"])
+    def create_checkout_session():
+        session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[{
+                "price_data": {
+                    "currency": "gbp",
+                    "product_data": {
+                        "name": "Instant Website",
+                    },
+                    "unit_amount": 24900,
                 },
-                "unit_amount": 24900,  # £249 in pence
-            },
-            "quantity": 1,
-        }],
-        mode="payment",
-        success_url="https://www.levelasolutions.co.uk/success",
-        cancel_url="https://www.levelasolutions.co.uk/cancel",
-    )
-    return redirect(session.url, code=303)
+                "quantity": 1,
+            }],
+            mode="payment",
+            success_url="https://www.levelasolutions.co.uk/success",
+            cancel_url="https://www.levelasolutions.co.uk/cancel",
+        )
+        return redirect(session.url, code=303)
 
 if __name__ == "__main__":
     app.run(debug=True)
