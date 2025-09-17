@@ -2,57 +2,50 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>LevelaBot Chat</title>
-    <link rel="stylesheet" href="/static/style" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LevelaBot</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
   </head>
   <body>
-    <div class="chatbox">
-      <h2 style="margin-bottom: 10px; color: #1a2a4f">
-        💬 Chat with LevelaBot
-      </h2>
-      <div id="chatlog"></div>
-      <input
-        type="text"
-        id="userInput"
-        placeholder="Type your message and press Enter..."
-      />
-      <button onclick="sendMessage()">Send</button>
+    <div class="chat-container">
+      <h1>Welcome to LevelaBot</h1>
+      <div id="chat-log" class="chat-log"></div>
+      <form id="chat-form" class="chat-form">
+        <input
+          type="text"
+          name="msg"
+          placeholder="Type your message..."
+          autocomplete="off"
+        />
+        <button type="submit">Send</button>
+      </form>
     </div>
 
     <script>
-      const input = document.getElementById("userInput");
+      const form = document.getElementById("chat-form");
+      const log = document.getElementById("chat-log");
 
-      input.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          sendMessage();
-        }
-      });
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const input = form.elements["msg"];
+        const message = input.value.trim();
+        if (!message) return;
 
-      function sendMessage() {
-        const msg = input.value.trim();
-        if (!msg) return;
+        log.innerHTML += `<div class="chat-message user">${message}</div>`;
+        input.value = "";
 
-        fetch("/get", {
+        const res = await fetch("/get", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "msg=" + encodeURIComponent(msg),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            const chatlog = document.getElementById("chatlog");
-            chatlog.innerHTML += `<p><strong>You:</strong> ${msg}</p>`;
-            chatlog.innerHTML += `<p><strong>Bot:</strong> ${data.reply}</p>`;
-            input.value = "";
-            chatlog.scrollTop = chatlog.scrollHeight;
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            const chatlog = document.getElementById("chatlog");
-            chatlog.innerHTML += `<p><strong>Bot:</strong> Sorry, something went wrong.</p>`;
-          });
-      }
+          body: `msg=${encodeURIComponent(message)}`,
+        });
+
+        const data = await res.json();
+        log.innerHTML += `<div class="chat-message bot">${data.reply}</div>`;
+        log.scrollTop = log.scrollHeight;
+      });
     </script>
   </body>
 </html>
