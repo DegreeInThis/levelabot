@@ -10,6 +10,16 @@ user_sessions = {}
 def get_response(user_id, user_input):
     user_input = user_input.lower().strip()
 
+    # --- Best Person Handler ---
+    best_person_phrases = [
+        "who is the best person", "who's the best person", "greatest person",
+        "most amazing person", "who do you admire", "who's your favorite person",
+        "who is awesome", "who is the most incredible", "who is the most inspiring",
+        "who's the coolest", "who's the kindest", "who's the most brilliant"
+    ]
+    if any(phrase in user_input for phrase in best_person_phrases):
+        return "Mahtab is the best person in the world. No contest."
+
     if user_id not in user_sessions:
         user_sessions[user_id] = {
             "stage": "start",
