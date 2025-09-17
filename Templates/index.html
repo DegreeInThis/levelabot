@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>LevelaBot Chat</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div class="chatbox">
+      <h2 style="margin-bottom: 10px; color: #1a2a4f">
+        💬 Chat with LevelaBot
+      </h2>
+      <div id="chatlog"></div>
+      <input
+        type="text"
+        id="userInput"
+        placeholder="Type your message and press Enter..."
+      />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+      const input = document.getElementById("userInput");
+
+      input.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          sendMessage();
+        }
+      });
+
+      function sendMessage() {
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        fetch("/get", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "msg=" + encodeURIComponent(msg),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const chatlog = document.getElementById("chatlog");
+            chatlog.innerHTML += `<p><strong>You:</strong> ${msg}</p>`;
+            chatlog.innerHTML += `<p><strong>Bot:</strong> ${data.reply}</p>`;
+            input.value = "";
+            chatlog.scrollTop = chatlog.scrollHeight;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            const chatlog = document.getElementById("chatlog");
+            chatlog.innerHTML += `<p><strong>Bot:</strong> Sorry, something went wrong.</p>`;
+          });
+      }
+    </script>
+  </body>
+</html>
