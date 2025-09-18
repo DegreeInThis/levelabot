@@ -7,6 +7,65 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    <style>
+      /* Floating Chat Button Styles */
+      #chat-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #0078d4;
+        border: none;
+        border-radius: 50%;
+        width: 56px;
+        height: 56px;
+        cursor: pointer;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+        padding: 0;
+      }
+
+      #chat-toggle img {
+        width: 28px;
+        height: 28px;
+        margin: 14px;
+        object-fit: contain;
+      }
+
+      #chat-frame {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 360px;
+        height: 520px;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+        z-index: 9998;
+        display: none;
+      }
+
+      @media (max-width: 480px) {
+        #chat-frame {
+          width: 90vw;
+          height: 70vh;
+          bottom: 80px;
+          right: 10px;
+        }
+
+        #chat-toggle {
+          bottom: 10px;
+          right: 10px;
+          width: 48px;
+          height: 48px;
+        }
+
+        #chat-toggle img {
+          width: 24px;
+          height: 24px;
+          margin: 12px;
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="chat-container">
@@ -22,6 +81,12 @@
         <button type="submit">Send</button>
       </form>
     </div>
+
+    <!-- Floating Chat Button and External Chatbot -->
+    <button id="chat-toggle">
+      <img src="{{ url_for('static', filename='chat-icon.png') }}" alt="Chat" />
+    </button>
+    <iframe id="chat-frame" src="https://levelabot.onrender.com"></iframe>
 
     <script>
       const form = document.getElementById("chat-form");
@@ -45,6 +110,20 @@
         const data = await res.json();
         log.innerHTML += `<div class="chat-message bot">${data.reply}</div>`;
         log.scrollTop = log.scrollHeight;
+      });
+
+      // Floating Chat Toggle Logic
+      const toggleBtn = document.getElementById("chat-toggle");
+      const chatFrame = document.getElementById("chat-frame");
+
+      let isOpen = false;
+
+      toggleBtn.addEventListener("click", () => {
+        isOpen = !isOpen;
+        chatFrame.style.display = isOpen ? "block" : "none";
+        toggleBtn.innerHTML = isOpen
+          ? "<img src=\"{{ url_for('static', filename='close-icon.png') }}\" alt=\"Close\">"
+          : "<img src=\"{{ url_for('static', filename='chat-icon.png') }}\" alt=\"Chat\">";
       });
     </script>
   </body>
