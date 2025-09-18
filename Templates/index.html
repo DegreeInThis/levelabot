@@ -115,7 +115,7 @@
         log.scrollTop = log.scrollHeight;
       });
 
-      // Floating Chat Toggle Logic
+      // Floating Chat Toggle Logic (no icon swap)
       const toggleBtn = document.getElementById("chat-toggle");
       const chatFrame = document.getElementById("chat-frame");
 
@@ -124,9 +124,6 @@
       toggleBtn.addEventListener("click", () => {
         isOpen = !isOpen;
         chatFrame.style.display = isOpen ? "block" : "none";
-        toggleBtn.innerHTML = isOpen
-          ? "<img src='http://levelasolutions.co.uk/wp-content/uploads/2025/09/close-icon.png' alt='Close'>"
-          : "<img src='http://levelasolutions.co.uk/wp-content/uploads/2025/09/chat-icon.png' alt='Chat'>";
       });
     </script>
   </body>
