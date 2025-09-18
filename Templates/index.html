@@ -84,7 +84,10 @@
 
     <!-- Floating Chat Button and External Chatbot -->
     <button id="chat-toggle">
-      <img src="{{ url_for('static', filename='chat-icon.png') }}" alt="Chat" />
+      <img
+        src="http://levelasolutions.co.uk/wp-content/uploads/2025/09/chat-icon.png"
+        alt="Chat"
+      />
     </button>
     <iframe id="chat-frame" src="https://levelabot.onrender.com"></iframe>
 
@@ -122,8 +125,8 @@
         isOpen = !isOpen;
         chatFrame.style.display = isOpen ? "block" : "none";
         toggleBtn.innerHTML = isOpen
-          ? "<img src=\"{{ url_for('static', filename='close-icon.png') }}\" alt=\"Close\">"
-          : "<img src=\"{{ url_for('static', filename='chat-icon.png') }}\" alt=\"Chat\">";
+          ? "<img src='http://levelasolutions.co.uk/wp-content/uploads/2025/09/close-icon.png' alt='Close'>"
+          : "<img src='http://levelasolutions.co.uk/wp-content/uploads/2025/09/chat-icon.png' alt='Chat'>";
       });
     </script>
   </body>
